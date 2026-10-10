@@ -1,0 +1,26 @@
+{
+  "name": "Mission Log Book — Pilot & Drone Flight Log",
+  "short_name": "MissionLog",
+  "description": "Mobile-friendly offline pilot and drone flight logbook with battery cycle tracking.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d16",
+  "theme_color": "#0b1325",
+  "categories": ["utilities", "productivity", "aviation"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

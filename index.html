@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1325">
+  <meta name="description" content="Mission Log Book - Mobile-friendly offline pilot and drone flight logbook with battery cycle tracking and CSV export.">
+  <title>Mission Log Book — Pilot & Drone Flight Log</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="stealth">
+
+  <!-- SVG Icon Library (Zero External Dependencies, 100% Offline) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+    </symbol>
+    <symbol id="icon-drone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+      <path d="M7 7l10 10M17 7L7 17"/>
+      <circle cx="5" cy="5" r="2.5"/>
+      <circle cx="19" cy="5" r="2.5"/>
+      <circle cx="5" cy="19" r="2.5"/>
+      <circle cx="19" cy="19" r="2.5"/>
+    </symbol>
+    <symbol id="icon-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="9" rx="1"/>
+      <rect x="14" y="3" width="7" height="5" rx="1"/>
+      <rect x="14" y="12" width="7" height="9" rx="1"/>
+      <rect x="3" y="16" width="7" height="5" rx="1"/>
+    </symbol>
+    <symbol id="icon-battery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="16" height="10" rx="2" ry="2"/>
+      <line x1="22" y1="11" x2="22" y2="13"/>
+      <line x1="6" y1="11" x2="6" y2="13"/>
+      <line x1="10" y1="11" x2="10" y2="13"/>
+      <line x1="14" y1="11" x2="14" y2="13"/>
+    </symbol>
+    <symbol id="icon-battery-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="16" height="10" rx="2" ry="2"/>
+      <line x1="22" y1="11" x2="22" y2="13"/>
+      <path d="M10 9l-2 3h3l-1 3 3-4h-3z"/>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </symbol>
+    <symbol id="icon-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </symbol>
+    <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      <line x1="10" y1="11" x2="10" y2="17"/>
+      <line x1="14" y1="11" x2="14" y2="17"/>
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </symbol>
+    <symbol id="icon-crosshair" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="22" y1="12" x2="18" y2="12"/>
+      <line x1="6" y1="12" x2="2" y2="12"/>
+      <line x1="12" y1="6" x2="12" y2="2"/>
+      <line x1="12" y1="22" x2="12" y2="18"/>
+    </symbol>
+    <symbol id="icon-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+      <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+      <line x1="12" y1="20" x2="12.01" y2="20"/>
+    </symbol>
+    <symbol id="icon-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="1" y1="1" x2="23" y2="23"/>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9"/>
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+      <line x1="12" y1="20" x2="12.01" y2="20"/>
+    </symbol>
+  </svg>
+
+  <div class="app-layout">
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="desktop-sidebar" aria-label="Main Navigation">
+      <div class="sidebar-brand">
+        <div class="brand-badge">
+          <svg class="icon"><use href="#icon-crosshair"></use></svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">MISSION LOG</div>
+          <div class="brand-subtitle">PILOT & DRONE LOGBOOK</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button type="button" class="nav-item active" data-view="dashboard" id="desktop-nav-dashboard">
+          <svg class="icon"><use href="#icon-dashboard"></use></svg>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="nav-item" data-view="flights" id="desktop-nav-flights">
+          <svg class="icon"><use href="#icon-plane"></use></svg>
+          <span>Flight Missions</span>
+          <span class="nav-counter" id="desktop-flights-count">0</span>
+        </button>
+        <button type="button" class="nav-item" data-view="batteries" id="desktop-nav-batteries">
+          <svg class="icon"><use href="#icon-battery"></use></svg>
+          <span>Battery Hangar</span>
+          <span class="nav-counter" id="desktop-batteries-count">0</span>
+        </button>
+        <button type="button" class="nav-item" data-view="settings" id="desktop-nav-settings">
+          <svg class="icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-actions">
+        <button type="button" class="btn btn-primary btn-block" id="btn-quick-log-sidebar">
+          <svg class="icon"><use href="#icon-plus"></use></svg>
+          <span>Log Mission</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="network-status" id="sidebar-network-status">
+          <span class="status-dot"></span>
+          <span class="status-label">Local Offline Ready</span>
+        </div>
+        <div class="version-tag">Mission Log Book v1.0</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- HUD Top Bar -->
+      <header class="hud-header">
+        <div class="header-left">
+          <div class="mobile-brand">
+            <svg class="icon"><use href="#icon-crosshair"></use></svg>
+            <span class="brand-name">MISSION LOG</span>
+          </div>
+          <h1 class="page-title" id="page-title">Mission Dashboard</h1>
+        </div>
+
+        <div class="header-right">
+          <!-- Connection Status Pill -->
+          <div class="connection-indicator" id="connection-indicator" title="Application works 100% offline with local IndexedDB">
+            <span class="conn-dot online" id="conn-dot"></span>
+            <span class="conn-text" id="conn-text">Online</span>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <button type="button" class="btn btn-primary btn-sm" id="btn-quick-log-header">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            <span class="hide-mobile">Log Flight</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Offline Notification Banner (Shown when offline) -->
+      <div class="offline-banner" id="offline-banner" style="display: none;">
+        <svg class="icon"><use href="#icon-wifi-off"></use></svg>
+        <span>Running Offline. All flight records and battery cycle data are saved safely in local storage.</span>
+      </div>
+
+      <!-- VIEW 1: DASHBOARD -->
+      <section class="view-section active" id="view-dashboard" aria-labelledby="page-title">
+        <!-- Telemetry Key Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">TOTAL FLIGHTS</span>
+              <div class="metric-icon-wrap bg-cyan">
+                <svg class="icon"><use href="#icon-plane"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-total-flights">0</div>
+            <div class="metric-subtext" id="kpi-flights-sub">All missions logged</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">TOTAL AIR TIME</span>
+              <div class="metric-icon-wrap bg-blue">
+                <svg class="icon"><use href="#icon-clock"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-total-duration">0h 0m</div>
+            <div class="metric-subtext" id="kpi-duration-sub">Cumulative flight time</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">BATTERIES REGISTERED</span>
+              <div class="metric-icon-wrap bg-emerald">
+                <svg class="icon"><use href="#icon-battery"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-total-batteries">0</div>
+            <div class="metric-subtext" id="kpi-batteries-sub">Packs in hangar</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">BATTERY CYCLES</span>
+              <div class="metric-icon-wrap bg-amber">
+                <svg class="icon"><use href="#icon-battery-bolt"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-total-cycles">0</div>
+            <div class="metric-subtext" id="kpi-cycles-sub">Active: Simple (1:1)</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">THIS MONTH</span>
+              <div class="metric-icon-wrap bg-purple">
+                <svg class="icon"><use href="#icon-dashboard"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-month-flights">0</div>
+            <div class="metric-subtext" id="kpi-month-sub">Flights in current month</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">MISSION RELIABILITY</span>
+              <div class="metric-icon-wrap bg-teal">
+                <svg class="icon"><use href="#icon-check"></use></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="kpi-reliability">100%</div>
+            <div class="metric-subtext" id="kpi-reliability-sub">Completed with no incidents</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Secondary Grid: Most Used Battery & Quick Actions -->
+        <div class="dashboard-secondary-grid">
+          <!-- Most Frequently Used Battery Card -->
+          <div class="panel-card" id="card-top-battery">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-amber"><use href="#icon-battery-bolt"></use></svg>
+                <h2 class="panel-title">Top Workhorse Battery</h2>
+              </div>
+              <span class="badge badge-info" id="top-battery-badge">Fleet Primary</span>
+            </div>
+            <div class="panel-body" id="top-battery-content">
+              <div class="empty-state-small">
+                <p>No battery usage records yet.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cycle Tracking Mode & Quick Switch -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-cyan"><use href="#icon-settings"></use></svg>
+                <h2 class="panel-title">Cycle Counting Mode</h2>
+              </div>
+              <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-cycle-mode">Change</button>
+            </div>
+            <div class="panel-body">
+              <div class="cycle-mode-banner">
+                <div class="cycle-mode-info">
+                  <div class="cycle-mode-title" id="dash-cycle-mode-name">Simple Usage Count (1:1)</div>
+                  <div class="cycle-mode-desc" id="dash-cycle-mode-desc">
+                    Each recorded flight counts as 1.0 usage cycle. Fast, straightforward estimate.
+                  </div>
+                </div>
+              </div>
+              <div class="quick-export-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-dash-export-flights">
+                  <svg class="icon"><use href="#icon-download"></use></svg>
+                  <span>Export Flights CSV</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-dash-export-batteries">
+                  <svg class="icon"><use href="#icon-download"></use></svg>
+                  <span>Export Battery CSV</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Flights Section -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <svg class="icon text-blue"><use href="#icon-plane"></use></svg>
+              <h2 class="panel-title">Recent Flight Missions</h2>
+            </div>
+            <button type="button" class="btn btn-link btn-sm" id="btn-view-all-flights">View All Missions &rarr;</button>
+          </div>
+          <div class="panel-body p-0">
+            <div class="flights-list-compact" id="dashboard-recent-flights">
+              <!-- Dynamically populated or empty state -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: FLIGHT MISSIONS -->
+      <section class="view-section" id="view-flights" aria-label="Flight Missions List">
+        <!-- Controls Bar: Search, Filters, New Mission -->
+        <div class="missions-toolbar">
+          <div class="search-box">
+            <svg class="icon search-icon"><use href="#icon-search"></use></svg>
+            <input type="text" id="flights-search-input" placeholder="Search by Mission, Location, Flight ID, Pilot, Aircraft..." aria-label="Search flights">
+            <button type="button" class="btn-clear-search" id="btn-clear-search" style="display: none;" title="Clear search">
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+
+          <div class="toolbar-buttons">
+            <button type="button" class="btn btn-secondary" id="btn-toggle-filters">
+              <svg class="icon"><use href="#icon-filter"></use></svg>
+              <span>Filters</span>
+              <span class="filter-count-badge" id="active-filter-badge" style="display: none;">0</span>
+            </button>
+
+            <div class="dropdown">
+              <button type="button" class="btn btn-secondary" id="btn-export-dropdown-toggle">
+                <svg class="icon"><use href="#icon-download"></use></svg>
+                <span>Export CSV</span>
+              </button>
+              <div class="dropdown-menu" id="export-dropdown-menu">
+                <button type="button" class="dropdown-item" id="btn-export-all-flights-csv">
+                  <svg class="icon"><use href="#icon-download"></use></svg>
+                  <span>Export All Flights CSV</span>
+                </button>
+                <button type="button" class="dropdown-item" id="btn-export-filtered-flights-csv">
+                  <svg class="icon"><use href="#icon-filter"></use></svg>
+                  <span>Export Filtered Flights CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" id="btn-log-flight-toolbar">
+              <svg class="icon"><use href="#icon-plus"></use></svg>
+              <span>Log Mission</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Sort Panel (Expandable) -->
+        <div class="filter-panel" id="filter-panel" style="display: none;">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label for="filter-date-from">Date From</label>
+              <input type="date" id="filter-date-from" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="filter-date-to">Date To</label>
+              <input type="date" id="filter-date-to" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="filter-battery">Battery Used</label>
+              <select id="filter-battery" class="form-control">
+                <option value="">All Batteries</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filter-status">Flight Status</label>
+              <select id="filter-status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="aborted">Aborted</option>
+                <option value="emergency">Emergency Landing</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filter-incident">Incidents / Anomaly</label>
+              <select id="filter-incident" class="form-control">
+                <option value="">All Flights</option>
+                <option value="has_incident">Flights With Incidents</option>
+                <option value="low">Severity: Low</option>
+                <option value="medium">Severity: Medium</option>
+                <option value="high">Severity: High</option>
+                <option value="critical">Severity: Critical</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sort-flights">Sort Order</label>
+              <select id="sort-flights" class="form-control">
+                <option value="date-desc">Date: Newest First</option>
+                <option value="date-asc">Date: Oldest First</option>
+                <option value="duration-desc">Duration: Longest First</option>
+                <option value="duration-asc">Duration: Shortest First</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-footer">
+            <span class="filter-results-text" id="filter-results-count">Showing 0 flights</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-reset-filters">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Flights Cards List Container -->
+        <div class="flights-cards-grid" id="flights-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- VIEW 3: BATTERIES -->
+      <section class="view-section" id="view-batteries" aria-label="Battery Management">
+        <div class="batteries-toolbar">
+          <div class="toolbar-title-wrap">
+            <h2 class="section-heading">Battery Fleet Management</h2>
+            <p class="section-subheading">Track pack discharge, cycle counts, health wear, and flight hours.</p>
+          </div>
+          <div class="toolbar-buttons">
+            <button type="button" class="btn btn-secondary" id="btn-export-batteries-csv">
+              <svg class="icon"><use href="#icon-download"></use></svg>
+              <span>Export Battery Summary CSV</span>
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-register-battery">
+              <svg class="icon"><use href="#icon-plus"></use></svg>
+              <span>Register Battery</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Cycle Counting Logic Banner -->
+        <div class="cycle-logic-card">
+          <div class="cycle-logic-header">
+            <div class="logic-icon">
+              <svg class="icon text-amber"><use href="#icon-battery-bolt"></use></svg>
+            </div>
+            <div class="logic-details">
+              <h3 class="logic-title">Active Cycle Counting Mode: <span id="batteries-view-mode-title">Simple Usage (1:1)</span></h3>
+              <p class="logic-desc" id="batteries-view-mode-desc">
+                Current method counts 1 flight as 1 usage cycle. To estimate Equivalent Full Cycles (EFC) based on battery % discharge (Pre - Post / 100), toggle in Settings.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-switch-cycle-mode-batteries">Configure in Settings</button>
+          </div>
+        </div>
+
+        <!-- Battery Cards Grid -->
+        <div class="batteries-cards-grid" id="batteries-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- VIEW 4: SETTINGS & DATA -->
+      <section class="view-section" id="view-settings" aria-label="Settings and Backup">
+        <div class="settings-grid">
+          <!-- Cycle-Counting Mode Configuration -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-amber"><use href="#icon-battery-bolt"></use></svg>
+                <h2 class="panel-title">Battery Cycle Counting Calculation</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <p class="text-muted mb-4">Choose how battery cycle wear is accumulated across flight missions.</p>
+
+              <div class="radio-card-group">
+                <label class="radio-card" id="label-mode-simple">
+                  <input type="radio" name="setting-cycle-mode" value="simple" id="mode-simple-radio" checked>
+                  <div class="radio-card-content">
+                    <div class="radio-card-title">Simple Usage Cycle (1 Flight = 1 Cycle)</div>
+                    <div class="radio-card-desc">
+                      Standard operation mode. Every recorded flight mission adds exactly 1.0 usage cycle.
+                      <div class="radio-card-note">Notice: This is a usage-based estimate rather than an electrochemical charge-cycle measurement.</div>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="radio-card" id="label-mode-advanced">
+                  <input type="radio" name="setting-cycle-mode" value="advanced" id="mode-advanced-radio">
+                  <div class="radio-card-content">
+                    <div class="radio-card-title">Advanced Equivalent Full Cycles (EFC from % Discharge)</div>
+                    <div class="radio-card-desc">
+                      Calculates cycle wear from the pre-flight and post-flight battery percentage difference:
+                      <code>Cycles = (Pre-Flight % - Post-Flight %) / 100</code>.
+                      Example: 100% down to 60% = 40% depth of discharge = 0.40 cycles.
+                      <div class="radio-card-note">Notice: If battery percentage readings are omitted on a flight, 1.0 cycle fallback is safely applied.</div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preferences: Theme & Flight Duration Format -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-cyan"><use href="#icon-dashboard"></use></svg>
+                <h2 class="panel-title">Display & Aesthetic Preferences</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-group mb-4">
+                <label for="setting-duration-format">Flight Duration Display Format</label>
+                <select id="setting-duration-format" class="form-control">
+                  <option value="hm">Hours and Minutes (e.g. 1h 25m)</option>
+                  <option value="minutes">Total Minutes (e.g. 85 min)</option>
+                </select>
+              </div>
+
+              <div class="form-group mb-2">
+                <label for="setting-theme">Color Theme</label>
+                <select id="setting-theme" class="form-control">
+                  <option value="stealth">Stealth Cockpit (Dark Navy & Aviation Cyan)</option>
+                  <option value="tactical">Tactical Amber (High Contrast Night Vision)</option>
+                  <option value="daylight">VFR Daylight (Aviation Light Mode)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Backup & Restore -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-emerald"><use href="#icon-upload"></use></svg>
+                <h2 class="panel-title">Data Privacy, Backup & Restore</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="privacy-callout mb-4">
+                <svg class="icon text-emerald"><use href="#icon-check"></use></svg>
+                <div>
+                  <strong>100% Client-Side Privacy:</strong>
+                  Your logs never leave this device. No remote servers, no user accounts, and zero tracking. All records are stored locally in your browser's persistent IndexedDB.
+                </div>
+              </div>
+
+              <p class="text-sm text-muted mb-4">
+                Browser storage may be erased if you clear browser site data or cookies. Regularly export a JSON backup to keep your flight log records secure!
+              </p>
+
+              <div class="button-row mb-4">
+                <button type="button" class="btn btn-primary" id="btn-export-backup-json">
+                  <svg class="icon"><use href="#icon-download"></use></svg>
+                  <span>Export JSON Backup</span>
+                </button>
+
+                <label class="btn btn-secondary mb-0 cursor-pointer">
+                  <svg class="icon"><use href="#icon-upload"></use></svg>
+                  <span>Restore from JSON Backup</span>
+                  <input type="file" id="input-import-backup-file" accept=".json" style="display: none;">
+                </label>
+              </div>
+
+              <div class="storage-stats-box" id="storage-stats-box">
+                <div class="storage-stat-item">
+                  <span class="stat-label">IndexedDB Database:</span>
+                  <span class="stat-value">MissionLogBookDB (v1)</span>
+                </div>
+                <div class="storage-stat-item">
+                  <span class="stat-label">Stored Records:</span>
+                  <span class="stat-value" id="stats-record-count">0 flights, 0 batteries</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sample Data & Reset -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <svg class="icon text-amber"><use href="#icon-settings"></use></svg>
+                <h2 class="panel-title">Demo Testing & Data Reset</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <p class="text-sm text-muted mb-4">
+                Load sample aviation missions and batteries to test all features, or wipe the local database clean.
+              </p>
+
+              <div class="button-row">
+                <button type="button" class="btn btn-outline" id="btn-load-demo-data">
+                  <svg class="icon"><use href="#icon-crosshair"></use></svg>
+                  <span>Load Sample Demo Data</span>
+                </button>
+
+                <button type="button" class="btn btn-danger" id="btn-clear-all-data">
+                  <svg class="icon"><use href="#icon-trash"></use></svg>
+                  <span>Clear All Data (Factory Reset)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+      <button type="button" class="bottom-nav-item active" data-view="dashboard" id="mob-nav-dashboard">
+        <svg class="icon"><use href="#icon-dashboard"></use></svg>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" class="bottom-nav-item" data-view="flights" id="mob-nav-flights">
+        <svg class="icon"><use href="#icon-plane"></use></svg>
+        <span>Flights</span>
+      </button>
+      <button type="button" class="bottom-nav-item" data-view="batteries" id="mob-nav-batteries">
+        <svg class="icon"><use href="#icon-battery"></use></svg>
+        <span>Batteries</span>
+      </button>
+      <button type="button" class="bottom-nav-item" data-view="settings" id="mob-nav-settings">
+        <svg class="icon"><use href="#icon-settings"></use></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- FLOATING ACTION BUTTON (Mobile Quick Add) -->
+  <button type="button" class="fab-btn" id="fab-log-flight" title="Log New Flight" aria-label="Log New Flight">
+    <svg class="icon"><use href="#icon-plus"></use></svg>
+  </button>
+
+  <!-- =========================================================================
+       MODAL: LOG / EDIT FLIGHT MISSION
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-flight" role="dialog" aria-modal="true" aria-labelledby="modal-flight-title" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg class="icon text-cyan"><use href="#icon-plane"></use></svg>
+          <h2 class="modal-title" id="modal-flight-title">Log New Flight Mission</h2>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-close-flight-modal" aria-label="Close modal">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+
+      <form id="form-flight" novalidate>
+        <input type="hidden" id="flight-edit-id">
+        <div class="modal-body">
+          <!-- Required Fields Alert -->
+          <div class="form-alert" id="flight-form-alert" style="display: none;"></div>
+
+          <!-- Section: Core Mission Details -->
+          <div class="form-section-title">REQUIRED FLIGHT PARAMETERS</div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="flight-id-input">Flight ID <span class="req">*</span></label>
+              <input type="text" id="flight-id-input" class="form-control" required placeholder="FL-YYYYMMDD-XXXX">
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-datetime">Date & Time <span class="req">*</span></label>
+              <input type="datetime-local" id="flight-datetime" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="flight-location">Flight Location <span class="req">*</span></label>
+              <input type="text" id="flight-location" class="form-control" required placeholder="e.g. Airfield Alpha, Sector 4">
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-battery-select">Battery Used <span class="req">*</span></label>
+              <select id="flight-battery-select" class="form-control" required>
+                <option value="">Select registered battery...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Flight Duration <span class="req">*</span></label>
+              <div class="duration-inputs">
+                <div class="duration-sub-input">
+                  <input type="number" id="flight-duration-hours" class="form-control" min="0" max="999" placeholder="0" value="0">
+                  <span class="unit-label">Hours</span>
+                </div>
+                <div class="duration-sub-input">
+                  <input type="number" id="flight-duration-minutes" class="form-control" min="0" max="59" placeholder="0" value="0">
+                  <span class="unit-label">Mins</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-status-select">Flight Status <span class="req">*</span></label>
+              <select id="flight-status-select" class="form-control" required>
+                <option value="completed">Completed Successfully</option>
+                <option value="aborted">Aborted Mid-Mission</option>
+                <option value="emergency">Emergency Landing</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Section: Optional Mission Telemetry -->
+          <div class="form-section-title mt-4">MISSION & OPERATIONAL DETAILS (OPTIONAL)</div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="flight-mission-name">Mission Name</label>
+              <input type="text" id="flight-mission-name" class="form-control" placeholder="e.g. Aerial Survey Sector 9">
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-pilot-name">Pilot / Operator Name</label>
+              <input type="text" id="flight-pilot-name" class="form-control" placeholder="e.g. Capt. Cole">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="flight-aircraft-model">Aircraft / Drone Model</label>
+              <input type="text" id="flight-aircraft-model" class="form-control" placeholder="e.g. DJI Matrice 350 RTK">
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-purpose">Flight Purpose</label>
+              <input type="text" id="flight-purpose" class="form-control" placeholder="e.g. Mapping / Inspection / Training">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-12">
+              <label for="flight-weather">Weather Conditions</label>
+              <input type="text" id="flight-weather" class="form-control" placeholder="e.g. Clear, 8kt Wind NW, 22°C, 10km Visibility">
+            </div>
+          </div>
+
+          <!-- Section: Battery Discharge Telemetry (For Advanced Cycles) -->
+          <div class="form-section-title mt-4">BATTERY DISCHARGE TELEMETRY</div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="flight-pre-pct">Pre-Flight Battery (%)</label>
+              <input type="number" id="flight-pre-pct" class="form-control" min="0" max="100" placeholder="e.g. 100">
+            </div>
+            <div class="form-group col-6">
+              <label for="flight-post-pct">Post-Flight Battery (%)</label>
+              <input type="number" id="flight-post-pct" class="form-control" min="0" max="100" placeholder="e.g. 35">
+            </div>
+          </div>
+          <div class="cycle-preview-badge" id="cycle-preview-badge" style="display: none;">
+            Estimated Discharge: <strong id="cycle-preview-discharge">0%</strong> &bull; Advanced Cycle Delta: <strong id="cycle-preview-delta">0.00 cycles</strong>
+          </div>
+
+          <div class="form-group col-12 mt-3">
+            <label for="flight-notes">Flight Notes & Observations</label>
+            <textarea id="flight-notes" class="form-control" rows="2" placeholder="General mission observations, flight profile notes..."></textarea>
+          </div>
+
+          <!-- Section: Incident & Maintenance Management -->
+          <div class="incident-card-section mt-4">
+            <label class="checkbox-container">
+              <input type="checkbox" id="flight-has-incident">
+              <span class="checkbox-checkmark"></span>
+              <span class="checkbox-label">
+                <strong>Incident or Anomaly Occurred During Mission</strong>
+                <span class="text-xs text-muted block">Check to log incident severity, corrective action, and maintenance.</span>
+              </span>
+            </label>
+
+            <div class="incident-form-fields" id="incident-fields-container" style="display: none;">
+              <div class="form-row mt-3">
+                <div class="form-group col-6">
+                  <label for="incident-severity">Incident Severity <span class="req">*</span></label>
+                  <select id="incident-severity" class="form-control">
+                    <option value="low">Low (Minor telemetry glitch, minor drift)</option>
+                    <option value="medium">Medium (Loss of GPS, minor payload failure)</option>
+                    <option value="high">High (Motor anomaly, critical battery drop)</option>
+                    <option value="critical">Critical (Crash, severe collision, fire risk)</option>
+                  </select>
+                </div>
+                <div class="form-group col-6">
+                  <label class="checkbox-container mt-4">
+                    <input type="checkbox" id="incident-maintenance-required">
+                    <span class="checkbox-checkmark"></span>
+                    <span class="checkbox-label"><strong>Follow-Up Maintenance Required</strong></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="incident-description">Incident Description <span class="req">*</span></label>
+                <textarea id="incident-description" class="form-control" rows="2" placeholder="Describe the incident anomaly in detail..."></textarea>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="incident-corrective-action">Corrective Action Taken</label>
+                <textarea id="incident-corrective-action" class="form-control" rows="2" placeholder="Immediate response, RTH triggered, landed safely..."></textarea>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="incident-maintenance-notes">Maintenance Observations</label>
+                <textarea id="incident-maintenance-notes" class="form-control" rows="2" placeholder="Parts inspected, propeller replacement needed, firmware update required..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-flight-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-flight">Save Flight Mission</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: REGISTER / EDIT BATTERY
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-battery" role="dialog" aria-modal="true" aria-labelledby="modal-battery-title" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg class="icon text-amber"><use href="#icon-battery"></use></svg>
+          <h2 class="modal-title" id="modal-battery-title">Register Battery</h2>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-close-battery-modal" aria-label="Close modal">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+
+      <form id="form-battery" novalidate>
+        <input type="hidden" id="battery-edit-id">
+        <div class="modal-body">
+          <div class="form-alert" id="battery-form-alert" style="display: none;"></div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="battery-id-input">Battery ID / Custom Name <span class="req">*</span></label>
+              <input type="text" id="battery-id-input" class="form-control" required placeholder="e.g. LIPO-6S-5000-A">
+            </div>
+            <div class="form-group col-6">
+              <label for="battery-chemistry">Battery Chemistry <span class="req">*</span></label>
+              <select id="battery-chemistry" class="form-control" required>
+                <option value="LiPo">LiPo (Lithium Polymer)</option>
+                <option value="Li-ion">Li-ion (Lithium Ion)</option>
+                <option value="LiFePO4">LiFePO4 (Lithium Iron Phosphate)</option>
+                <option value="Solid-State">Solid-State Battery</option>
+                <option value="NiMH">NiMH</option>
+                <option value="Other">Other Chemistry</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="battery-capacity">Capacity (mAh) <span class="req">*</span></label>
+              <input type="number" id="battery-capacity" class="form-control" min="1" placeholder="e.g. 5000" required>
+            </div>
+            <div class="form-group col-6">
+              <label for="battery-voltage">Nominal Voltage (V)</label>
+              <input type="number" id="battery-voltage" class="form-control" step="0.1" min="0" placeholder="e.g. 22.2">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="battery-cells">Cell Configuration</label>
+              <input type="text" id="battery-cells" class="form-control" placeholder="e.g. 6S, 4S, 12S">
+            </div>
+            <div class="form-group col-6">
+              <label for="battery-purchase-date">Purchase Date</label>
+              <input type="date" id="battery-purchase-date" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="battery-initial-cycles">Initial Cycle Count <span class="req">*</span></label>
+              <input type="number" id="battery-initial-cycles" class="form-control" min="0" value="0" required placeholder="0">
+              <span class="text-xs text-muted">Cycles completed prior to logging here.</span>
+            </div>
+            <div class="form-group col-6">
+              <label for="battery-max-cycles">Max Recommended Cycles <span class="req">*</span></label>
+              <input type="number" id="battery-max-cycles" class="form-control" min="1" value="300" required placeholder="300">
+              <span class="text-xs text-muted">Manufacturer cycle life rating.</span>
+            </div>
+          </div>
+
+          <div class="form-group col-12 mt-3">
+            <label for="battery-notes">Notes & Storage Instructions</label>
+            <textarea id="battery-notes" class="form-control" rows="2" placeholder="e.g. Reserved for heavy mapping rig; charge to 3.85V for storage."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-battery-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-battery">Save Battery Pack</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: FLIGHT MISSION DETAILS DOSSIER
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-flight-details" role="dialog" aria-modal="true" aria-labelledby="details-modal-title" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg class="icon text-cyan"><use href="#icon-plane"></use></svg>
+          <h2 class="modal-title" id="details-modal-title">Flight Mission Telemetry Dossier</h2>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-close-details-modal" aria-label="Close modal">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+
+      <div class="modal-body p-0" id="flight-details-content">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <div class="modal-footer justify-between">
+        <div class="details-footer-left">
+          <button type="button" class="btn btn-danger btn-sm" id="btn-details-delete">
+            <svg class="icon"><use href="#icon-trash"></use></svg>
+            <span>Delete Flight</span>
+          </button>
+        </div>
+        <div class="details-footer-right">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-details-edit">
+            <svg class="icon"><use href="#icon-edit"></use></svg>
+            <span>Edit Flight</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-close-details-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: CONFIRM ACTION (Reusable)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" style="display: none;">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg class="icon text-amber" id="confirm-modal-icon"><use href="#icon-alert"></use></svg>
+          <h2 class="modal-title" id="confirm-modal-title">Confirm Action</h2>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-close-confirm-modal" aria-label="Close modal">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-modal-message" class="confirm-message">Are you sure you want to perform this action?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-proceed">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
