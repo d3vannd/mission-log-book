@@ -3,7 +3,7 @@
  * Ensures 100% offline functionality after first load.
  */
 
-const CACHE_NAME = 'mission-log-cache-v1';
+const CACHE_NAME = 'mission-log-cache-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Cache-first strategy for static assets with network fallback
+// Fetch: Stale-while-revalidate strategy for local assets with offline fallback
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
@@ -46,26 +46,22 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cachedResponse = await cache.match(event.request);
 
-      return fetch(event.request).then((networkResponse) => {
-        // If response is valid, update the cache dynamically
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+          cache.put(event.request, networkResponse.clone());
         }
         return networkResponse;
       }).catch(() => {
-        // If navigation request fails, return cached index.html
         if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
+          return cache.match('./index.html');
         }
+        return cachedResponse;
       });
+
+      return cachedResponse || fetchPromise;
     })
   );
 });

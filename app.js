@@ -13,7 +13,7 @@
     settings: {
       cycleMode: 'simple', // 'simple' | 'advanced'
       durationFormat: 'hm', // 'hm' | 'minutes'
-      theme: 'stealth' // 'stealth' | 'tactical' | 'daylight'
+      theme: 'minimal' // 'minimal' | 'daylight' | 'stealth' | 'tactical'
     },
     activeView: 'dashboard',
     filters: {
@@ -98,7 +98,14 @@
       const savedSettings = await window.missionDB.getAllSettings();
       if (savedSettings.cycleMode) state.settings.cycleMode = savedSettings.cycleMode;
       if (savedSettings.durationFormat) state.settings.durationFormat = savedSettings.durationFormat;
-      if (savedSettings.theme) state.settings.theme = savedSettings.theme;
+      
+      // Ensure theme defaults to clean minimal white and migrates legacy stealth/tactical
+      if (savedSettings.theme === 'stealth' || savedSettings.theme === 'tactical' || !savedSettings.theme) {
+        state.settings.theme = 'minimal';
+        await window.missionDB.setSetting('theme', 'minimal');
+      } else {
+        state.settings.theme = savedSettings.theme;
+      }
 
       // Update UI settings elements
       const simpleRadio = document.getElementById('mode-simple-radio');
@@ -146,9 +153,10 @@
   }
 
   function applyTheme(themeName) {
-    document.body.setAttribute('data-theme', themeName || 'stealth');
+    const active = (themeName === 'stealth' || themeName === 'tactical') ? 'minimal' : (themeName || 'minimal');
+    document.body.setAttribute('data-theme', active);
     const themeSelect = document.getElementById('setting-theme');
-    if (themeSelect) themeSelect.value = themeName;
+    if (themeSelect) themeSelect.value = active;
   }
 
   /* =========================================================================
@@ -498,15 +506,15 @@
             <svg class="icon"><use href="#icon-plane"></use></svg>
           </div>
           <div class="empty-state-title">No Flight Missions Logged</div>
-          <div class="empty-state-desc">Start logging your pilot sorties, drone flights, and battery discharge telemetry now.</div>
+          <div class="empty-state-desc">Start logging your pilot sorties, drone flights, and battery discharge telemetry to monitor fleet readiness.</div>
           <div class="button-row mt-3">
             <button type="button" class="btn btn-primary" id="btn-empty-log-flight">
               <svg class="icon"><use href="#icon-plus"></use></svg>
-              <span>Log First Flight</span>
+              <span>Log New Flight</span>
             </button>
-            <button type="button" class="btn btn-outline" id="btn-empty-demo-data">
+            <button type="button" class="btn btn-secondary" id="btn-empty-demo-data">
               <svg class="icon"><use href="#icon-crosshair"></use></svg>
-              <span>Load Demo Flight Data</span>
+              <span>Load Sample Demo Data</span>
             </button>
           </div>
         </div>
@@ -525,40 +533,102 @@
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
 
-    let html = '';
+    let tableRows = '';
+    let mobileCards = '';
+
     recent.forEach(flight => {
       const batt = state.batteries.find(b => b.id === flight.batteryId);
       const battName = batt ? batt.name : (flight.batteryId || 'Unknown');
       const statusBadge = getStatusBadge(flight.status);
+      const incidentPill = flight.hasIncident
+        ? `<span class="badge badge-danger" title="Incident recorded">Incident</span>`
+        : '';
 
-      html += `
-        <div class="compact-flight-item" data-flight-id="${escapeHtml(flight.id)}">
-          <div class="compact-flight-left">
-            <div class="compact-flight-icon">
-              <svg class="icon"><use href="#icon-plane"></use></svg>
+      tableRows += `
+        <tr class="compact-flight-item recent-table-row" data-flight-id="${escapeHtml(flight.id)}" tabindex="0" role="button" aria-label="View flight ${escapeHtml(flight.id)}">
+          <td>
+            <div class="table-mission-name">${escapeHtml(flight.missionName || flight.location || flight.id)}</div>
+            <div class="table-flight-id">${escapeHtml(flight.id)}</div>
+          </td>
+          <td>
+            <div class="table-cell-date">${formatDateString(flight.date)}</div>
+          </td>
+          <td>
+            <div class="table-cell-location">${escapeHtml(flight.location || '—')}</div>
+          </td>
+          <td>
+            <span class="chip chip-battery">🔋 ${escapeHtml(battName)}</span>
+          </td>
+          <td>
+            <span class="chip chip-duration">${formatDuration(flight.duration)}</span>
+          </td>
+          <td>
+            <div class="status-stack">${statusBadge} ${incidentPill}</div>
+          </td>
+          <td>
+            <button type="button" class="btn btn-outline btn-xs" aria-label="View Dossier">Dossier</button>
+          </td>
+        </tr>
+      `;
+
+      mobileCards += `
+        <div class="compact-flight-item recent-mobile-card" data-flight-id="${escapeHtml(flight.id)}" tabindex="0" role="button">
+          <div class="recent-card-top">
+            <div class="recent-card-meta">
+              <span class="recent-card-id">${escapeHtml(flight.id)}</span>
+              <span class="recent-card-date">${formatDateString(flight.date)}</span>
             </div>
-            <div>
-              <div class="compact-flight-title">${escapeHtml(flight.missionName || flight.location || flight.id)}</div>
-              <div class="compact-flight-sub">${formatDateString(flight.date)} &bull; ${escapeHtml(flight.location)}</div>
+            <div class="recent-card-status">
+              ${statusBadge}
+              ${incidentPill}
             </div>
           </div>
-          <div class="compact-flight-right">
-            <span class="chip chip-duration">${formatDuration(flight.duration)}</span>
-            <span class="chip chip-battery hide-mobile">🔋 ${escapeHtml(battName)}</span>
-            ${statusBadge}
-            ${flight.hasIncident ? `<span class="badge badge-danger" title="Incident Logged">!</span>` : ''}
+          <div class="recent-card-title">${escapeHtml(flight.missionName || flight.location || flight.id)}</div>
+          <div class="recent-card-location">📍 ${escapeHtml(flight.location || '—')}</div>
+          <div class="recent-card-chips">
+            <span class="chip chip-duration">⏱ ${formatDuration(flight.duration)}</span>
+            <span class="chip chip-battery">🔋 ${escapeHtml(battName)}</span>
           </div>
         </div>
       `;
     });
 
-    container.innerHTML = html;
+    container.innerHTML = `
+      <div class="recent-flights-table-wrap hide-mobile">
+        <table class="recent-flights-table">
+          <thead>
+            <tr>
+              <th>Mission / Flight ID</th>
+              <th>Date & Time</th>
+              <th>Location</th>
+              <th>Battery Pack</th>
+              <th>Air Time</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </div>
+      <div class="recent-flights-cards-wrap hide-desktop">
+        ${mobileCards}
+      </div>
+    `;
 
-    // Attach click listeners to open flight details dossier
+    // Attach click and keyboard listeners to open flight details dossier
     container.querySelectorAll('.compact-flight-item').forEach(item => {
-      item.addEventListener('click', () => {
+      const openDossier = () => {
         const id = item.dataset.flightId;
-        openFlightDetailsModal(id);
+        if (id) openFlightDetailsModal(id);
+      };
+      item.addEventListener('click', openDossier);
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDossier();
+        }
       });
     });
   }
@@ -1893,8 +1963,8 @@
           await window.missionDB.clearAllData();
           state.flights = [];
           state.batteries = [];
-          state.settings = { cycleMode: 'simple', durationFormat: 'hm', theme: 'stealth' };
-          applyTheme('stealth');
+          state.settings = { cycleMode: 'simple', durationFormat: 'hm', theme: 'minimal' };
+          applyTheme('minimal');
           renderAllViews();
           showToast('Local database cleared.', 'info');
         } catch (err) {
@@ -2073,11 +2143,16 @@
     modal.style.display = 'flex';
 
     if (proceedBtn) {
-      proceedBtn.onclick = () => {
+      proceedBtn.onclick = async () => {
+        const cb = state.confirmCallback;
         closeConfirmModal();
-        if (state.confirmCallback) {
-          state.confirmCallback();
-          state.confirmCallback = null;
+        if (typeof cb === 'function') {
+          try {
+            await cb();
+          } catch (err) {
+            console.error('Confirm action error:', err);
+            showToast('Action failed: ' + err.message, 'error');
+          }
         }
       };
     }
@@ -2181,6 +2256,9 @@
 
     const headerQuickLog = document.getElementById('btn-quick-log-header');
     if (headerQuickLog) headerQuickLog.addEventListener('click', () => openFlightModal());
+
+    const dashQuickLog = document.getElementById('btn-dash-quick-log');
+    if (dashQuickLog) dashQuickLog.addEventListener('click', () => openFlightModal());
 
     const fabLogFlight = document.getElementById('fab-log-flight');
     if (fabLogFlight) fabLogFlight.addEventListener('click', () => openFlightModal());

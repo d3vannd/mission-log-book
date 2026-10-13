@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1325">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Mission Log Book - Mobile-friendly offline pilot and drone flight logbook with battery cycle tracking and CSV export.">
   <title>Mission Log Book — Pilot & Drone Flight Log</title>
   <link rel="manifest" href="manifest.json">
@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="assets/icon-192.png">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-theme="stealth">
+<body data-theme="minimal">
 
   <!-- SVG Icon Library (Zero External Dependencies, 100% Offline) -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -204,6 +204,20 @@
 
       <!-- VIEW 1: DASHBOARD -->
       <section class="view-section active" id="view-dashboard" aria-labelledby="page-title">
+        <!-- Dashboard Header & Prominent Action -->
+        <div class="dashboard-header-bar">
+          <div class="dashboard-header-info">
+            <h2 class="dashboard-headline">Flight Operations Dashboard</h2>
+            <p class="dashboard-subheadline">Real-time sortie metrics, battery cycle tracking, and mission readiness.</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <button type="button" class="btn btn-primary btn-lg-prominent" id="btn-dash-quick-log">
+              <svg class="icon"><use href="#icon-plus"></use></svg>
+              <span>Log New Flight</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Telemetry Key Metrics Grid -->
         <div class="metrics-grid">
           <div class="metric-card">
@@ -545,9 +559,9 @@
               <div class="form-group mb-2">
                 <label for="setting-theme">Color Theme</label>
                 <select id="setting-theme" class="form-control">
-                  <option value="stealth">Stealth Cockpit (Dark Navy & Aviation Cyan)</option>
-                  <option value="tactical">Tactical Amber (High Contrast Night Vision)</option>
-                  <option value="daylight">VFR Daylight (Aviation Light Mode)</option>
+                  <option value="minimal" selected>Minimal White (Clean White & Navy)</option>
+                  <option value="daylight">VFR Daylight (Crisp High-Contrast White)</option>
+                  <option value="slate">Cool Slate (Soft Light White)</option>
                 </select>
               </div>
             </div>
